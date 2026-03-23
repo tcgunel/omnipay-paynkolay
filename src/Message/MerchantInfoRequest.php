@@ -7,47 +7,47 @@ use Omnipay\PayNKolay\Helpers\PayNKolayHelper;
 
 class MerchantInfoRequest extends RemoteAbstractRequest
 {
-	protected $endpoint = '/Vpos/Payment/GetMerchandInformation';
+    protected $endpoint = '/Vpos/Payment/GetMerchandInformation';
 
-	/**
-	 * @throws InvalidRequestException
-	 */
-	public function getData(): array
-	{
-		$this->validateAll();
+    /**
+     * @throws InvalidRequestException
+     */
+    public function getData(): array
+    {
+        $this->validateAll();
 
-		$date = date('d.m.Y');
+        $date = date('d.m.Y');
 
-		return [
-			'sx' => $this->getMerchantId(),
-			'date' => $date,
-			'hashDatav2' => PayNKolayHelper::generateMerchantInfoHash(
-				$this->getMerchantId(),
-				$date,
-				$this->getMerchantStorekey()
-			),
-		];
-	}
+        return [
+            'sx' => $this->getMerchantId(),
+            'date' => $date,
+            'hashDatav2' => PayNKolayHelper::generateMerchantInfoHash(
+                $this->getMerchantId(),
+                $date,
+                $this->getMerchantStorekey()
+            ),
+        ];
+    }
 
-	/**
-	 * @throws InvalidRequestException
-	 */
-	protected function validateAll(): void
-	{
-		$this->validateSettings();
-	}
+    /**
+     * @throws InvalidRequestException
+     */
+    protected function validateAll(): void
+    {
+        $this->validateSettings();
+    }
 
-	public function sendData($data)
-	{
-		$url = $this->getBaseUrl() . $this->endpoint;
+    public function sendData($data)
+    {
+        $url = $this->getBaseUrl() . $this->endpoint;
 
-		$httpResponse = $this->sendFormRequest($url, $data);
+        $httpResponse = $this->sendFormRequest($url, $data);
 
-		return $this->createResponse($httpResponse);
-	}
+        return $this->createResponse($httpResponse);
+    }
 
-	protected function createResponse($data): MerchantInfoResponse
-	{
-		return $this->response = new MerchantInfoResponse($this, $data);
-	}
+    protected function createResponse($data): MerchantInfoResponse
+    {
+        return $this->response = new MerchantInfoResponse($this, $data);
+    }
 }

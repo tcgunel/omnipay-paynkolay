@@ -7,44 +7,44 @@ use Omnipay\PayNKolay\Helpers\PayNKolayHelper;
 
 class BinInstallmentRequest extends RemoteAbstractRequest
 {
-	protected $endpoint = '/Vpos/Payment/PaymentInstallments';
+    protected $endpoint = '/Vpos/Payment/PaymentInstallments';
 
-	/**
-	 * @throws InvalidRequestException
-	 */
-	public function getData(): array
-	{
-		$this->validateAll();
+    /**
+     * @throws InvalidRequestException
+     */
+    public function getData(): array
+    {
+        $this->validateAll();
 
-		return [
-			'sx' => $this->getMerchantId(),
-			'amount' => PayNKolayHelper::formatAmount((float)$this->getAmount()),
-			'cardNumber' => $this->getBinNumber(),
-			'iscardvalid' => 'false',
-		];
-	}
+        return [
+            'sx' => $this->getMerchantId(),
+            'amount' => PayNKolayHelper::formatAmount((float) $this->getAmount()),
+            'cardNumber' => $this->getBinNumber(),
+            'iscardvalid' => 'false',
+        ];
+    }
 
-	/**
-	 * @throws InvalidRequestException
-	 */
-	protected function validateAll(): void
-	{
-		$this->validateSettings();
+    /**
+     * @throws InvalidRequestException
+     */
+    protected function validateAll(): void
+    {
+        $this->validateSettings();
 
-		$this->validate('amount', 'binNumber');
-	}
+        $this->validate('amount', 'binNumber');
+    }
 
-	public function sendData($data)
-	{
-		$url = $this->getBaseUrl() . $this->endpoint;
+    public function sendData($data)
+    {
+        $url = $this->getBaseUrl() . $this->endpoint;
 
-		$httpResponse = $this->sendFormRequest($url, $data);
+        $httpResponse = $this->sendFormRequest($url, $data);
 
-		return $this->createResponse($httpResponse);
-	}
+        return $this->createResponse($httpResponse);
+    }
 
-	protected function createResponse($data): BinInstallmentResponse
-	{
-		return $this->response = new BinInstallmentResponse($this, $data);
-	}
+    protected function createResponse($data): BinInstallmentResponse
+    {
+        return $this->response = new BinInstallmentResponse($this, $data);
+    }
 }
