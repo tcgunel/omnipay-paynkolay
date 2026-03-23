@@ -1,0 +1,6 @@
+HTTP/1.1 200 OK
+Server: nginx
+Content-Type: application/json
+Content-Length: 300
+
+{"RESPONSE_CODE":2,"USE_3D":"true","BANK_REQUEST_MESSAGE":"<html><body>3D Secure Redirect</body></html>","REFERENCE_CODE":"PNK-REF-123456","CLIENT_REFERENCE_CODE":"ORDER-123456"}

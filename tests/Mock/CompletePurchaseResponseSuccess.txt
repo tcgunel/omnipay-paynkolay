@@ -1,0 +1,6 @@
+HTTP/1.1 200 OK
+Server: nginx
+Content-Type: application/json
+Content-Length: 200
+
+{"RESPONSE_CODE":2,"AUTH_CODE":"654321","REFERENCE_CODE":"PNK-REF-123456","CLIENT_REFERENCE_CODE":"ORDER-123456","RESPONSE_DATA":""}

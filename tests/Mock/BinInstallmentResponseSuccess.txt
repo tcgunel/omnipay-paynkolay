@@ -1,0 +1,6 @@
+HTTP/1.1 200 OK
+Server: nginx
+Content-Type: application/json
+Content-Length: 300
+
+{"RESPONSE_CODE":2,"PAYMENT_BANK_LIST":[{"INSTALLMENT":2,"COMMISION":1.50},{"INSTALLMENT":3,"COMMISION":2.50},{"INSTALLMENT":6,"COMMISION":4.00}]}

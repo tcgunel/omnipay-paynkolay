@@ -1,0 +1,8 @@
+{
+  "merchantId": "testMerchantId",
+  "merchantPassword": "testPassword",
+  "merchantStorekey": "testStoreKey",
+  "referenceCode": "PNK-REF-123456",
+  "amount": "50.00",
+  "testMode": true
+}

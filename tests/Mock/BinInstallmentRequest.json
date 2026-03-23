@@ -1,0 +1,8 @@
+{
+  "merchantId": "testMerchantId",
+  "merchantPassword": "testPassword",
+  "merchantStorekey": "testStoreKey",
+  "binNumber": "415565",
+  "amount": "100.00",
+  "testMode": true
+}
