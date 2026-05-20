@@ -84,6 +84,79 @@ class PayNKolayHelper
     }
 
     /**
+     * Hash for the inbound 3DS postback. Uses a completely different algorithm
+     * than the outgoing `hashDatav2` fields:
+     *
+     *   - Raw concatenation, NO `|` separator
+     *   - SHA-1 (not SHA-512)
+     *   - Hex-decode → base64-encode
+     *
+     * Field order matches the WooCommerce reference plugin (the only
+     * working implementation we could verify against production):
+     *
+     *   MERCHANT_NO + REFERENCE_CODE + AUTH_CODE + RESPONSE_CODE
+     *     + USE_3D + RND + INSTALLMENT + AUTHORIZATION_AMOUNT
+     *     + MERCHANT_SECRET_KEY
+     */
+    public static function generatePostbackHash(
+        string $merchantNo,
+        string $referenceCode,
+        string $authCode,
+        string $responseCode,
+        string $use3D,
+        string $rnd,
+        string $installment,
+        string $authorizationAmount,
+        string $merchantSecretKey
+    ): string {
+        $hashString = $merchantNo
+            . $referenceCode
+            . $authCode
+            . $responseCode
+            . $use3D
+            . $rnd
+            . $installment
+            . $authorizationAmount
+            . $merchantSecretKey;
+
+        return base64_encode(pack('H*', sha1($hashString)));
+    }
+
+    /**
+     * Verify an inbound 3DS postback. Reads the documented fields out of
+     * `$postback`, recomputes the postback hash and compares it (in
+     * constant time) to the `hashData` field Paynkolay sent.
+     *
+     * Returns false on any missing field or hash mismatch.
+     */
+    public static function verifyPostbackHash(array $postback, string $merchantSecretKey): bool
+    {
+        if ($merchantSecretKey === '') {
+            return false;
+        }
+
+        $supplied = (string) ($postback['hashData'] ?? '');
+
+        if ($supplied === '') {
+            return false;
+        }
+
+        $computed = self::generatePostbackHash(
+            (string) ($postback['MERCHANT_NO'] ?? ''),
+            (string) ($postback['REFERENCE_CODE'] ?? ''),
+            (string) ($postback['AUTH_CODE'] ?? ''),
+            (string) ($postback['RESPONSE_CODE'] ?? ''),
+            (string) ($postback['USE_3D'] ?? ''),
+            (string) ($postback['RND'] ?? ''),
+            (string) ($postback['INSTALLMENT'] ?? ''),
+            (string) ($postback['AUTHORIZATION_AMOUNT'] ?? ''),
+            $merchantSecretKey,
+        );
+
+        return hash_equals($computed, $supplied);
+    }
+
+    /**
      * Format amount with two decimals and dot separator (e.g. 100.5 -> "100.50").
      */
     public static function formatAmount(float $amount): string
