@@ -1,0 +1,10 @@
+{
+  "sxToken": "test-sx-token",
+  "sxListToken": "test-sx-list-token",
+  "sxCancelToken": "test-sx-cancel-token",
+  "merchantSecretKey": "test-merchant-secret-key",
+  "startDate": "10.08.2025",
+  "endDate": "15.08.2025",
+  "clientRefCode": "ORDER-12345",
+  "testMode": true
+}

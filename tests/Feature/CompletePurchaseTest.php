@@ -61,4 +61,16 @@ class CompletePurchaseTest extends TestCase
         $this->assertFalse($response->isSuccessful());
         $this->assertEquals('3D dogrulama basarisiz', $response->getMessage());
     }
+
+    public function test_get_message_falls_back_to_bank_code_when_response_data_empty()
+    {
+        // Gateway sometimes returns the bank decline code with an empty
+        // RESPONSE_DATA — the ErrorCodes table should fill in the text.
+        $response = new CompletePurchaseResponse($this->getMockRequest(), [
+            'RESPONSE_CODE' => 51,
+            'RESPONSE_DATA' => '',
+        ]);
+
+        $this->assertEquals('Yetersiz Bakiye / Yetersiz Kart Limiti', $response->getMessage());
+    }
 }

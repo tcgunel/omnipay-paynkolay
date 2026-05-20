@@ -5,6 +5,7 @@ namespace Omnipay\PayNKolay\Message;
 use JsonException;
 use Omnipay\Common\Message\AbstractResponse;
 use Omnipay\Common\Message\RequestInterface;
+use Omnipay\PayNKolay\Constants\ErrorCodes;
 use Psr\Http\Message\ResponseInterface;
 
 class CompletePurchaseResponse extends AbstractResponse
@@ -49,7 +50,15 @@ class CompletePurchaseResponse extends AbstractResponse
 
     public function getMessage(): ?string
     {
-        return $this->data['RESPONSE_DATA'] ?? null;
+        $raw = $this->data['RESPONSE_DATA'] ?? null;
+
+        if (is_string($raw) && $raw !== '') {
+            return $raw;
+        }
+
+        // Gateway sometimes ships an empty RESPONSE_DATA on bank declines —
+        // fall back to the documented bank code message when we have one.
+        return ErrorCodes::message($this->getCode());
     }
 
     public function getTransactionReference(): ?string

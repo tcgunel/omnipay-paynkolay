@@ -84,6 +84,36 @@ trait GettersSettersTrait
         return $this->setParameter('trxDate', $value);
     }
 
+    public function getStartDate()
+    {
+        return $this->getParameter('startDate');
+    }
+
+    public function setStartDate($value)
+    {
+        return $this->setParameter('startDate', $value);
+    }
+
+    public function getEndDate()
+    {
+        return $this->getParameter('endDate');
+    }
+
+    public function setEndDate($value)
+    {
+        return $this->setParameter('endDate', $value);
+    }
+
+    public function getClientRefCode()
+    {
+        return $this->getParameter('clientRefCode');
+    }
+
+    public function setClientRefCode($value)
+    {
+        return $this->setParameter('clientRefCode', $value);
+    }
+
     public function getBinNumber()
     {
         return $this->getParameter('binNumber');

@@ -9,6 +9,7 @@ use Omnipay\PayNKolay\Message\CancelRequest;
 use Omnipay\PayNKolay\Message\CompletePurchaseRequest;
 use Omnipay\PayNKolay\Message\MerchantInfoRequest;
 use Omnipay\PayNKolay\Message\Notification;
+use Omnipay\PayNKolay\Message\PaymentListRequest;
 use Omnipay\PayNKolay\Message\PurchaseRequest;
 use Omnipay\PayNKolay\Message\RefundRequest;
 use Omnipay\PayNKolay\Traits\GettersSettersTrait;
@@ -71,6 +72,11 @@ class Gateway extends AbstractGateway
     public function merchantInfo(array $options = []): AbstractRequest
     {
         return $this->createRequest(MerchantInfoRequest::class, $options);
+    }
+
+    public function paymentList(array $options = []): AbstractRequest
+    {
+        return $this->createRequest(PaymentListRequest::class, $options);
     }
 
     /**
