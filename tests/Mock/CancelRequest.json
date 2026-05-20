@@ -1,7 +1,9 @@
 {
-  "merchantId": "testMerchantId",
-  "merchantPassword": "testPassword",
-  "merchantStorekey": "testStoreKey",
+  "sxToken": "test-sx-token",
+  "sxCancelToken": "test-sx-cancel-token",
+  "merchantSecretKey": "test-merchant-secret-key",
   "referenceCode": "PNK-REF-123456",
+  "amount": "100.00",
+  "trxDate": "2025.08.15",
   "testMode": true
 }

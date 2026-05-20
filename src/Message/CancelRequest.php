@@ -17,23 +17,21 @@ class CancelRequest extends RemoteAbstractRequest
         $this->validateAll();
 
         $data = [
-            'sx' => $this->getMerchantPassword(),
+            'sx' => $this->getSxCancelToken(),
             'referenceCode' => $this->getReferenceCode(),
             'type' => 'cancel',
-            'amount' => '',
-            'trxDate' => '',
+            'amount' => PayNKolayHelper::formatAmount((float) $this->getAmount()),
+            'trxDate' => $this->getTrxDate(),
         ];
 
-        $hash = PayNKolayHelper::generateCancelRefundHash(
+        $data['hashDatav2'] = PayNKolayHelper::generateCancelRefundHash(
             $data['sx'],
             $data['referenceCode'],
             $data['type'],
             $data['amount'],
             $data['trxDate'],
-            $this->getMerchantStorekey()
+            $this->getMerchantSecretKey()
         );
-
-        $data['hashDatav2'] = $hash;
 
         return $data;
     }
@@ -43,7 +41,7 @@ class CancelRequest extends RemoteAbstractRequest
      */
     protected function validateAll(): void
     {
-        $this->validate('merchantPassword', 'merchantStorekey', 'referenceCode');
+        $this->validate('sxCancelToken', 'merchantSecretKey', 'referenceCode', 'amount', 'trxDate');
     }
 
     public function sendData($data)

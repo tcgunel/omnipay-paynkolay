@@ -16,7 +16,7 @@ class CompletePurchaseRequest extends RemoteAbstractRequest
         $this->validateAll();
 
         return [
-            'sx' => $this->getMerchantId(),
+            'sx' => $this->getSxToken(),
             'referenceCode' => $this->getReferenceCode(),
         ];
     }

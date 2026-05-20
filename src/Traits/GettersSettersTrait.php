@@ -4,34 +4,44 @@ namespace Omnipay\PayNKolay\Traits;
 
 trait GettersSettersTrait
 {
-    public function getMerchantId()
+    public function getSxToken()
     {
-        return $this->getParameter('merchantId');
+        return $this->getParameter('sxToken');
     }
 
-    public function setMerchantId($value)
+    public function setSxToken($value)
     {
-        return $this->setParameter('merchantId', $value);
+        return $this->setParameter('sxToken', $value);
     }
 
-    public function getMerchantPassword()
+    public function getSxListToken()
     {
-        return $this->getParameter('merchantPassword');
+        return $this->getParameter('sxListToken');
     }
 
-    public function setMerchantPassword($value)
+    public function setSxListToken($value)
     {
-        return $this->setParameter('merchantPassword', $value);
+        return $this->setParameter('sxListToken', $value);
     }
 
-    public function getMerchantStorekey()
+    public function getSxCancelToken()
     {
-        return $this->getParameter('merchantStorekey');
+        return $this->getParameter('sxCancelToken');
     }
 
-    public function setMerchantStorekey($value)
+    public function setSxCancelToken($value)
     {
-        return $this->setParameter('merchantStorekey', $value);
+        return $this->setParameter('sxCancelToken', $value);
+    }
+
+    public function getMerchantSecretKey()
+    {
+        return $this->getParameter('merchantSecretKey');
+    }
+
+    public function setMerchantSecretKey($value)
+    {
+        return $this->setParameter('merchantSecretKey', $value);
     }
 
     public function getInstallment()
@@ -62,6 +72,16 @@ trait GettersSettersTrait
     public function setReferenceCode($value)
     {
         return $this->setParameter('referenceCode', $value);
+    }
+
+    public function getTrxDate()
+    {
+        return $this->getParameter('trxDate');
+    }
+
+    public function setTrxDate($value)
+    {
+        return $this->setParameter('trxDate', $value);
     }
 
     public function getBinNumber()

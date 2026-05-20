@@ -21,7 +21,7 @@ class MerchantInfoTest extends TestCase
         $data = $request->getData();
 
         self::assertIsArray($data);
-        self::assertEquals('testMerchantId', $data['sx']);
+        self::assertEquals('test-sx-token', $data['sx']);
         self::assertArrayHasKey('date', $data);
         self::assertArrayHasKey('hashDatav2', $data);
         self::assertNotEmpty($data['hashDatav2']);

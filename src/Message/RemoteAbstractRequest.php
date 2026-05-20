@@ -21,7 +21,7 @@ abstract class RemoteAbstractRequest extends AbstractRequest
      */
     protected function validateSettings(): void
     {
-        $this->validate('merchantId', 'merchantStorekey');
+        $this->validate('sxToken', 'merchantSecretKey');
     }
 
     protected function getBaseUrl(): string

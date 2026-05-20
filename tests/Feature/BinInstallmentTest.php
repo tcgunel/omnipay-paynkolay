@@ -22,7 +22,7 @@ class BinInstallmentTest extends TestCase
         $data = $request->getData();
 
         self::assertIsArray($data);
-        self::assertEquals('testMerchantId', $data['sx']);
+        self::assertEquals('test-sx-token', $data['sx']);
         self::assertEquals('100.00', $data['amount']);
         self::assertEquals('415565', $data['cardNumber']);
         self::assertEquals('false', $data['iscardvalid']);

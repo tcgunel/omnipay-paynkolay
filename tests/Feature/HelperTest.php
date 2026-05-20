@@ -21,28 +21,28 @@ class HelperTest extends TestCase
     public function test_generate_sale_hash()
     {
         $hash = PayNKolayHelper::generateSaleHash(
-            'merchantId',
+            'sx-token',
             'ORDER-001',
             '100.00',
             'https://example.com/success',
             'https://example.com/fail',
             '01.01.2025 12:00:00',
             '',
-            'storeKey'
+            'merchant-secret-key'
         );
 
         self::assertNotEmpty($hash);
 
         // Same inputs should produce same hash
         $hash2 = PayNKolayHelper::generateSaleHash(
-            'merchantId',
+            'sx-token',
             'ORDER-001',
             '100.00',
             'https://example.com/success',
             'https://example.com/fail',
             '01.01.2025 12:00:00',
             '',
-            'storeKey'
+            'merchant-secret-key'
         );
 
         self::assertEquals($hash, $hash2);
@@ -51,12 +51,12 @@ class HelperTest extends TestCase
     public function test_generate_cancel_refund_hash()
     {
         $hash = PayNKolayHelper::generateCancelRefundHash(
-            'merchantPassword',
+            'sx-cancel-token',
             'REF-001',
             'cancel',
-            '',
-            '',
-            'storeKey'
+            '100.00',
+            '2025.08.15',
+            'merchant-secret-key'
         );
 
         self::assertNotEmpty($hash);
@@ -65,9 +65,9 @@ class HelperTest extends TestCase
     public function test_generate_merchant_info_hash()
     {
         $hash = PayNKolayHelper::generateMerchantInfoHash(
-            'merchantId',
+            'sx-token',
             '01.01.2025',
-            'storeKey'
+            'merchant-secret-key'
         );
 
         self::assertNotEmpty($hash);

@@ -36,7 +36,7 @@ class PurchaseRequest extends RemoteAbstractRequest
         }
 
         $data = [
-            'sx' => $this->getMerchantId(),
+            'sx' => $this->getSxToken(),
             'clientRefCode' => $this->getTransactionId(),
             'amount' => $amount,
             'installmentNo' => (string) $installment,
@@ -64,7 +64,7 @@ class PurchaseRequest extends RemoteAbstractRequest
             $data['failUrl'],
             $data['rnd'],
             $data['customerKey'],
-            $this->getMerchantStorekey()
+            $this->getMerchantSecretKey()
         );
 
         $data['hashDatav2'] = $hash;

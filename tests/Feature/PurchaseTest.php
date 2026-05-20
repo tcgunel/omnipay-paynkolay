@@ -22,7 +22,7 @@ class PurchaseTest extends TestCase
         $data = $request->getData();
 
         self::assertIsArray($data);
-        self::assertEquals('testMerchantId', $data['sx']);
+        self::assertEquals('test-sx-token', $data['sx']);
         self::assertEquals('ORDER-123456', $data['clientRefCode']);
         self::assertEquals('100.00', $data['amount']);
         self::assertEquals('1', $data['installmentNo']);

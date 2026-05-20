@@ -22,11 +22,11 @@ class RefundTest extends TestCase
         $data = $request->getData();
 
         self::assertIsArray($data);
-        self::assertEquals('testPassword', $data['sx']);
+        self::assertEquals('test-sx-cancel-token', $data['sx']);
         self::assertEquals('PNK-REF-123456', $data['referenceCode']);
         self::assertEquals('refund', $data['type']);
         self::assertEquals('50.00', $data['amount']);
-        self::assertEquals('', $data['trxDate']);
+        self::assertEquals('2025.03.26', $data['trxDate']);
         self::assertArrayHasKey('hashDatav2', $data);
         self::assertNotEmpty($data['hashDatav2']);
     }

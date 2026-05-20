@@ -17,7 +17,7 @@ class BinInstallmentRequest extends RemoteAbstractRequest
         $this->validateAll();
 
         return [
-            'sx' => $this->getMerchantId(),
+            'sx' => $this->getSxToken(),
             'amount' => PayNKolayHelper::formatAmount((float) $this->getAmount()),
             'cardNumber' => $this->getBinNumber(),
             'iscardvalid' => 'false',

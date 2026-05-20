@@ -1,6 +1,7 @@
 {
-  "merchantId": "testMerchantId",
-  "merchantPassword": "testPassword",
-  "merchantStorekey": "testStoreKey",
+  "sxToken": "test-sx-token",
+  "sxListToken": "test-sx-list-token",
+  "sxCancelToken": "test-sx-cancel-token",
+  "merchantSecretKey": "test-merchant-secret-key",
   "testMode": true
 }

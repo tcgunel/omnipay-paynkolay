@@ -5,10 +5,8 @@ namespace Omnipay\PayNKolay\Helpers;
 class PayNKolayHelper
 {
     /**
-     * Generate SHA512 hash and base64 encode.
-     *
-     * @param string $data Pipe-delimited string to hash
-     * @return string Base64 encoded SHA512 hash
+     * SHA-512 over the input, base64-encoded. Used by every outgoing
+     * `hashDatav2` field.
      */
     public static function hash(string $data): string
     {
@@ -16,8 +14,10 @@ class PayNKolayHelper
     }
 
     /**
-     * Generate hash for sale/purchase requests.
-     * Format: sx|clientRefCode|amount|successUrl|failUrl|rnd|customerKey|merchantStorekey
+     * Hash for /Vpos/v1/Payment (Purchase v1) and /Vpos/by-link-create
+     * (Pay By Link).
+     *
+     * Format: sx|clientRefCode|amount|successUrl|failUrl|rnd|customerKey|merchantSecretKey
      */
     public static function generateSaleHash(
         string $sx,
@@ -27,9 +27,9 @@ class PayNKolayHelper
         string $failUrl,
         string $rnd,
         string $customerKey,
-        string $merchantStorekey
+        string $merchantSecretKey
     ): string {
-        $hashString = implode('|', [
+        return self::hash(implode('|', [
             $sx,
             $clientRefCode,
             $amount,
@@ -37,15 +37,15 @@ class PayNKolayHelper
             $failUrl,
             $rnd,
             $customerKey,
-            $merchantStorekey,
-        ]);
-
-        return self::hash($hashString);
+            $merchantSecretKey,
+        ]));
     }
 
     /**
-     * Generate hash for cancel/refund requests.
-     * Format: sx|referenceCode|type|amount|trxDate|merchantStorekey
+     * Hash for /Vpos/v1/CancelRefundPayment.
+     *
+     * Format: sx|referenceCode|type|amount|trxDate|merchantSecretKey
+     * trxDate format: YYYY.MM.DD
      */
     public static function generateCancelRefundHash(
         string $sx,
@@ -53,41 +53,38 @@ class PayNKolayHelper
         string $type,
         string $amount,
         string $trxDate,
-        string $merchantStorekey
+        string $merchantSecretKey
     ): string {
-        $hashString = implode('|', [
+        return self::hash(implode('|', [
             $sx,
             $referenceCode,
             $type,
             $amount,
             $trxDate,
-            $merchantStorekey,
-        ]);
-
-        return self::hash($hashString);
+            $merchantSecretKey,
+        ]));
     }
 
     /**
-     * Generate hash for merchant information requests.
-     * Format: sx|date|merchantStorekey
+     * Hash for /Vpos/Payment/GetMerchandInformation.
+     *
+     * Format: sx|date|merchantSecretKey
+     * date format: DD.MM.YYYY
      */
     public static function generateMerchantInfoHash(
         string $sx,
         string $date,
-        string $merchantStorekey
+        string $merchantSecretKey
     ): string {
-        $hashString = implode('|', [
+        return self::hash(implode('|', [
             $sx,
             $date,
-            $merchantStorekey,
-        ]);
-
-        return self::hash($hashString);
+            $merchantSecretKey,
+        ]));
     }
 
     /**
-     * Format amount as Turkish decimal format (e.g. 100.50 -> "100.50").
-     * The C# code uses tr-TR culture N2 format then replaces dot and comma.
+     * Format amount with two decimals and dot separator (e.g. 100.5 -> "100.50").
      */
     public static function formatAmount(float $amount): string
     {
@@ -95,7 +92,7 @@ class PayNKolayHelper
     }
 
     /**
-     * Clean HTML response from escaped characters.
+     * Strip escaped newlines/quotes the gateway emits inside HTML payloads.
      */
     public static function cleanHtml(?string $input): ?string
     {

@@ -22,11 +22,11 @@ class CancelTest extends TestCase
         $data = $request->getData();
 
         self::assertIsArray($data);
-        self::assertEquals('testPassword', $data['sx']);
+        self::assertEquals('test-sx-cancel-token', $data['sx']);
         self::assertEquals('PNK-REF-123456', $data['referenceCode']);
         self::assertEquals('cancel', $data['type']);
-        self::assertEquals('', $data['amount']);
-        self::assertEquals('', $data['trxDate']);
+        self::assertEquals('100.00', $data['amount']);
+        self::assertEquals('2025.08.15', $data['trxDate']);
         self::assertArrayHasKey('hashDatav2', $data);
         self::assertNotEmpty($data['hashDatav2']);
     }

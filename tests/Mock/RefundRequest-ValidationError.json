@@ -1,5 +1,5 @@
 {
-  "merchantId": "testMerchantId",
-  "merchantStorekey": "testStoreKey",
+  "sxToken": "test-sx-token",
+  "merchantSecretKey": "test-merchant-secret-key",
   "testMode": true
 }

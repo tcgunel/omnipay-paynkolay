@@ -34,9 +34,10 @@ class Gateway extends AbstractGateway
         return [
             'clientIp' => '127.0.0.1',
 
-            'merchantId' => '',
-            'merchantPassword' => '',
-            'merchantStorekey' => '',
+            'sxToken' => '',
+            'sxListToken' => '',
+            'sxCancelToken' => '',
+            'merchantSecretKey' => '',
 
             'installment' => 1,
         ];

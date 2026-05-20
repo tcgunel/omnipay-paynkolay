@@ -19,12 +19,12 @@ class MerchantInfoRequest extends RemoteAbstractRequest
         $date = date('d.m.Y');
 
         return [
-            'sx' => $this->getMerchantId(),
+            'sx' => $this->getSxToken(),
             'date' => $date,
             'hashDatav2' => PayNKolayHelper::generateMerchantInfoHash(
-                $this->getMerchantId(),
+                $this->getSxToken(),
                 $date,
-                $this->getMerchantStorekey()
+                $this->getMerchantSecretKey()
             ),
         ];
     }

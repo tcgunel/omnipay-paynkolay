@@ -22,7 +22,7 @@ class CompletePurchaseTest extends TestCase
         $data = $request->getData();
 
         self::assertIsArray($data);
-        self::assertEquals('testMerchantId', $data['sx']);
+        self::assertEquals('test-sx-token', $data['sx']);
         self::assertEquals('PNK-REF-123456', $data['referenceCode']);
     }
 
