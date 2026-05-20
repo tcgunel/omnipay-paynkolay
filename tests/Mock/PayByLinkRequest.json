@@ -1,0 +1,11 @@
+{
+  "sxToken": "test-sx-token",
+  "merchantSecretKey": "test-merchant-secret-key",
+  "transactionId": "ORDER-123",
+  "amount": "100.00",
+  "installment": 1,
+  "returnUrl": "https://example.com/success",
+  "cancelUrl": "https://example.com/fail",
+  "clientIp": "127.0.0.1",
+  "testMode": true
+}

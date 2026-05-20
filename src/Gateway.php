@@ -9,6 +9,9 @@ use Omnipay\PayNKolay\Message\CancelRequest;
 use Omnipay\PayNKolay\Message\CompletePurchaseRequest;
 use Omnipay\PayNKolay\Message\MerchantInfoRequest;
 use Omnipay\PayNKolay\Message\Notification;
+use Omnipay\PayNKolay\Message\PayByLinkDeleteRequest;
+use Omnipay\PayNKolay\Message\PayByLinkRequest;
+use Omnipay\PayNKolay\Message\PayByLinkSendRequest;
 use Omnipay\PayNKolay\Message\PaymentListRequest;
 use Omnipay\PayNKolay\Message\PurchaseRequest;
 use Omnipay\PayNKolay\Message\RefundRequest;
@@ -77,6 +80,32 @@ class Gateway extends AbstractGateway
     public function paymentList(array $options = []): AbstractRequest
     {
         return $this->createRequest(PaymentListRequest::class, $options);
+    }
+
+    /**
+     * "Ortak Ödeme Sayfası" — create a checkout-time hosted-payment link
+     * and redirect the customer to it.
+     */
+    public function payByLink(array $options = []): AbstractRequest
+    {
+        return $this->createRequest(PayByLinkRequest::class, $options);
+    }
+
+    /**
+     * Issue a post-order payment link and deliver it to the customer
+     * by SMS and/or email.
+     */
+    public function payByLinkSend(array $options = []): AbstractRequest
+    {
+        return $this->createRequest(PayByLinkSendRequest::class, $options);
+    }
+
+    /**
+     * Invalidate a previously issued Pay By Link URL.
+     */
+    public function payByLinkDelete(array $options = []): AbstractRequest
+    {
+        return $this->createRequest(PayByLinkDeleteRequest::class, $options);
     }
 
     /**

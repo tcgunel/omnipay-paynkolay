@@ -1,0 +1,6 @@
+{
+  "sxToken": "test-sx-token",
+  "merchantSecretKey": "test-merchant-secret-key",
+  "linkRef": "by6353337820250825153001",
+  "testMode": true
+}

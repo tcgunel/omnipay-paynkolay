@@ -1,0 +1,6 @@
+HTTP/1.1 200 OK
+Server: nginx
+Content-Type: application/json
+Content-Length: 120
+
+{"RESPONSE_CODE":2,"LINK_URL":"https://paynkolaytest.nkolayislem.com.tr/Vpos/by6353337820250825153001","RESPONSE_DATA":""}

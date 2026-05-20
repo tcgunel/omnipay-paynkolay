@@ -56,7 +56,7 @@ class PurchaseRequest extends RemoteAbstractRequest
             'use3D' => $use3D,
         ];
 
-        $hash = PayNKolayHelper::generateSaleHash(
+        $data['hashDatav2'] = PayNKolayHelper::generateSaleHash(
             $data['sx'],
             $data['clientRefCode'],
             $data['amount'],
@@ -67,9 +67,40 @@ class PurchaseRequest extends RemoteAbstractRequest
             $this->getMerchantSecretKey()
         );
 
-        $data['hashDatav2'] = $hash;
+        // Optional buyer/billing metadata. Only sent when supplied so the
+        // request payload stays minimal for callers that don't care.
+        foreach ($this->buyerFields() as $key => $value) {
+            if ($value !== null && $value !== '') {
+                $data[$key] = $value;
+            }
+        }
 
         return $data;
+    }
+
+    /**
+     * Optional buyer/billing fields the gateway will log against the
+     * transaction. Pulled from the Card object first, falling back to
+     * explicit request parameters so callers can override per-request.
+     *
+     * @return array<string, ?string>
+     */
+    private function buyerFields(): array
+    {
+        $namesurname = $this->getFullName() ?: $this->get_card('getName');
+        $email = $this->get_card('getEmail');
+        $phone = $this->get_card('getBillingPhone') ?: $this->get_card('getPhone');
+        $address = $this->get_card('getBillingAddress1');
+
+        return [
+            'namesurname' => $namesurname ?: null,
+            'email' => $email ?: null,
+            'phone' => $phone ?: null,
+            'adress' => $address ?: null,
+            'tckn' => $this->getTckn(),
+            'description' => $this->getDescription(),
+            'MerchantCustomerNo' => $this->getMerchantCustomerNo(),
+        ];
     }
 
     /**

@@ -114,6 +114,86 @@ trait GettersSettersTrait
         return $this->setParameter('clientRefCode', $value);
     }
 
+    public function getTckn()
+    {
+        return $this->getParameter('tckn');
+    }
+
+    public function setTckn($value)
+    {
+        return $this->setParameter('tckn', $value);
+    }
+
+    public function getMerchantCustomerNo()
+    {
+        return $this->getParameter('merchantCustomerNo');
+    }
+
+    public function setMerchantCustomerNo($value)
+    {
+        return $this->setParameter('merchantCustomerNo', $value);
+    }
+
+    public function getDescription()
+    {
+        return $this->getParameter('description');
+    }
+
+    public function setDescription($value)
+    {
+        return $this->setParameter('description', $value);
+    }
+
+    public function getLinkRef()
+    {
+        return $this->getParameter('linkRef');
+    }
+
+    public function setLinkRef($value)
+    {
+        return $this->setParameter('linkRef', $value);
+    }
+
+    public function getLinkExpirationTime()
+    {
+        return $this->getParameter('linkExpirationTime');
+    }
+
+    public function setLinkExpirationTime($value)
+    {
+        return $this->setParameter('linkExpirationTime', $value);
+    }
+
+    public function getLinkAmountFixingType()
+    {
+        return $this->getParameter('linkAmountFixingType');
+    }
+
+    public function setLinkAmountFixingType($value)
+    {
+        return $this->setParameter('linkAmountFixingType', $value);
+    }
+
+    public function getFullName()
+    {
+        return $this->getParameter('fullName');
+    }
+
+    public function setFullName($value)
+    {
+        return $this->setParameter('fullName', $value);
+    }
+
+    public function getGsm()
+    {
+        return $this->getParameter('gsm');
+    }
+
+    public function setGsm($value)
+    {
+        return $this->setParameter('gsm', $value);
+    }
+
     public function getBinNumber()
     {
         return $this->getParameter('binNumber');

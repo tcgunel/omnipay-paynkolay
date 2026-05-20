@@ -40,6 +40,49 @@ class PurchaseTest extends TestCase
         self::assertArrayHasKey('rnd', $data);
     }
 
+    public function test_purchase_request_buyer_fields_when_supplied()
+    {
+        $options = file_get_contents(__DIR__ . '/../Mock/PurchaseRequest.json');
+        $options = json_decode($options, true, 512, JSON_THROW_ON_ERROR);
+        $options['tckn'] = '12345678901';
+        $options['description'] = 'Order #123';
+        $options['merchantCustomerNo'] = 'M-9999';
+        $options['card']['email'] = 'buyer@example.com';
+        $options['card']['billingPhone'] = '5551112233';
+        $options['card']['billingAddress1'] = 'Test St 1';
+
+        $request = new PurchaseRequest($this->getHttpClient(), $this->getHttpRequest());
+        $request->initialize($options);
+
+        $data = $request->getData();
+
+        self::assertEquals('12345678901', $data['tckn']);
+        self::assertEquals('Order #123', $data['description']);
+        self::assertEquals('M-9999', $data['MerchantCustomerNo']);
+        self::assertEquals('buyer@example.com', $data['email']);
+        self::assertEquals('5551112233', $data['phone']);
+        self::assertEquals('Test St 1', $data['adress']);
+    }
+
+    public function test_purchase_request_omits_empty_buyer_fields()
+    {
+        $options = file_get_contents(__DIR__ . '/../Mock/PurchaseRequest.json');
+        $options = json_decode($options, true, 512, JSON_THROW_ON_ERROR);
+
+        $request = new PurchaseRequest($this->getHttpClient(), $this->getHttpRequest());
+        $request->initialize($options);
+
+        $data = $request->getData();
+
+        // Fixture supplies billingPhone + email + billingAddress1; assert those flow through.
+        self::assertEquals('test@example.com', $data['email']);
+        self::assertEquals('5554443322', $data['phone']);
+        // tckn / description / MerchantCustomerNo not supplied → must be absent.
+        self::assertArrayNotHasKey('tckn', $data);
+        self::assertArrayNotHasKey('description', $data);
+        self::assertArrayNotHasKey('MerchantCustomerNo', $data);
+    }
+
     public function test_purchase_request_3d_secure()
     {
         $options = file_get_contents(__DIR__ . '/../Mock/PurchaseRequest.json');

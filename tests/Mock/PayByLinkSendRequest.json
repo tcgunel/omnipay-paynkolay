@@ -1,0 +1,17 @@
+{
+  "sxToken": "test-sx-token",
+  "merchantSecretKey": "test-merchant-secret-key",
+  "transactionId": "ORDER-456",
+  "amount": "250.00",
+  "installment": 3,
+  "fullName": "Customer Name",
+  "gsm": "5555555555",
+  "linkExpirationTime": "2026-12-30",
+  "description": "Invoice payment",
+  "testMode": true,
+  "card": {
+    "firstName": "Customer",
+    "lastName": "Name",
+    "email": "customer@example.com"
+  }
+}
