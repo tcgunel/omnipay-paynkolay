@@ -14,7 +14,6 @@ namespace Omnipay\PayNKolay\Constants;
  */
 class ErrorCodes
 {
-    /** @var array<string, string> */
     public const MESSAGES = [
         '00' => 'Onaylandı / İşlem Başarılı',
         '01' => 'Kart Bankasını Arayınız',

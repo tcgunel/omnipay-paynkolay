@@ -50,9 +50,9 @@ class PayByLinkSendRequest extends RemoteAbstractRequest
             'AMOUNT' => $amount,
             'LINK_EXPIRATION_TIME' => $expiration,
             'IS_3D_MUST' => 'true',
-            'CLIENT_REFERENCE_CODE' => (string) ($this->getTransactionId() ?? ''),
+            'CLIENT_REFERENCE_CODE' => (string) $this->getTransactionId(),
             'INSTALLMENT' => (string) $installment,
-            'cardHolderIP' => $this->getClientIp() ?? '',
+            'cardHolderIP' => $this->getClientIp(),
             'SEND_SMS' => $this->getParameter('sendSms') === false ? 'false' : 'true',
             'SEND_EMAIL' => $this->getParameter('sendEmail') === false ? 'false' : 'true',
         ];
@@ -71,7 +71,7 @@ class PayByLinkSendRequest extends RemoteAbstractRequest
         $optional = [
             'PAYMENT_SUBJECT' => $this->getParameter('paymentSubject'),
             'EXPLANATION' => $this->getDescription(),
-            'CALLBACK_URL' => $this->getReturnUrl() ?? $this->getNotifyUrl(),
+            'CALLBACK_URL' => $this->getReturnUrl() ?: $this->getNotifyUrl(),
             'IMAGE_URL' => $this->getParameter('imageUrl'),
         ];
 

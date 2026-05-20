@@ -43,14 +43,14 @@ class PayByLinkRequest extends RemoteAbstractRequest
             'sx' => $this->getSxToken(),
             'clientRefCode' => $this->getTransactionId(),
             'amount' => $amount,
-            'successUrl' => $this->getReturnUrl() ?? '',
-            'failUrl' => $this->getCancelUrl() ?? $this->getReturnUrl() ?? '',
+            'successUrl' => $this->getReturnUrl(),
+            'failUrl' => $this->getCancelUrl() ?: $this->getReturnUrl(),
             'rnd' => $rnd,
             'use3D' => 'true',
             'currencyCode' => (string) ($this->getCurrencyNumber() ?? Currency::TRY),
             'transactionType' => 'SALES',
             'instalments' => (string) $installment,
-            'cardHolderIP' => $this->getClientIp() ?? '',
+            'cardHolderIP' => $this->getClientIp(),
             'detail' => 'true',
         ];
 

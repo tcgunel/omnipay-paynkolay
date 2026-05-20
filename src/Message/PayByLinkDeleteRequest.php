@@ -29,7 +29,7 @@ class PayByLinkDeleteRequest extends RemoteAbstractRequest
         $data = [
             'sx' => $this->getSxToken(),
             'q' => (string) $this->getLinkRef(),
-            'cardHolderIP' => $this->getClientIp() ?? '',
+            'cardHolderIP' => $this->getClientIp(),
         ];
 
         $data['hashDatav2'] = PayNKolayHelper::hash(implode('|', [
