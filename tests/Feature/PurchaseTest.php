@@ -152,4 +152,17 @@ class PurchaseTest extends TestCase
         $this->assertNotNull($response->getRedirectHtml());
         $this->assertStringContainsString('3D Secure Redirect', $response->getRedirectHtml());
     }
+
+    public function test_purchase_response_3d_redirect_response_emits_inline_html()
+    {
+        // Paynkolay returns no redirect URL — only inline HTML. getRedirectResponse()
+        // must not run Omnipay's validateRedirect() (which requires a non-empty URL).
+        $httpResponse = $this->getMockHttpResponse('PurchaseResponse3D.txt');
+
+        $response = new PurchaseResponse($this->getMockRequest(), $httpResponse);
+
+        $redirect = $response->getRedirectResponse();
+
+        $this->assertStringContainsString('3D Secure Redirect', $redirect->getContent());
+    }
 }

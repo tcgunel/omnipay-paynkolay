@@ -3,11 +3,13 @@
 namespace Omnipay\PayNKolay\Message;
 
 use JsonException;
+use Omnipay\Common\Exception\RuntimeException;
 use Omnipay\Common\Message\AbstractResponse;
 use Omnipay\Common\Message\RedirectResponseInterface;
 use Omnipay\Common\Message\RequestInterface;
 use Omnipay\PayNKolay\Helpers\PayNKolayHelper;
 use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 class PurchaseResponse extends AbstractResponse implements RedirectResponseInterface
 {
@@ -92,6 +94,23 @@ class PurchaseResponse extends AbstractResponse implements RedirectResponseInter
         }
 
         return null;
+    }
+
+    /**
+     * Paynkolay's direct API returns the bank's 3DS challenge as inline
+     * HTML (`BANK_REQUEST_MESSAGE`), not a URL to redirect to. Omnipay's
+     * default `getRedirectResponse()` runs `validateRedirect()`, which
+     * hard-requires a non-empty `getRedirectUrl()` — so the default throws
+     * "The given redirectUrl cannot be empty." before the consumer ever
+     * sees the HTML. Override to emit the bank-side HTML directly.
+     */
+    public function getRedirectResponse()
+    {
+        if (! $this->isRedirect()) {
+            throw new RuntimeException('This response does not support redirection.');
+        }
+
+        return new HttpResponse((string) $this->getRedirectHtml());
     }
 
     public function getMessage(): ?string
