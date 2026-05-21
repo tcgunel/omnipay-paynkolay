@@ -103,6 +103,13 @@ class PurchaseResponse extends AbstractResponse implements RedirectResponseInter
      * hard-requires a non-empty `getRedirectUrl()` — so the default throws
      * "The given redirectUrl cannot be empty." before the consumer ever
      * sees the HTML. Override to emit the bank-side HTML directly.
+     *
+     * The HTML is an auto-submit `<form>` pointing at the bank's 3DS
+     * challenge page. Bank ACS pages set `X-Frame-Options: DENY`, so a
+     * consumer that renders this inside an iframe hits a refused-connection
+     * once the bank tries to load. Inject `target="_top"` into every form
+     * that doesn't already have one so the auto-submit navigates the
+     * top-level window and breaks out of any iframe.
      */
     public function getRedirectResponse()
     {
@@ -110,7 +117,26 @@ class PurchaseResponse extends AbstractResponse implements RedirectResponseInter
             throw new RuntimeException('This response does not support redirection.');
         }
 
-        return new HttpResponse((string) $this->getRedirectHtml());
+        return new HttpResponse($this->breakOutOfFrames((string) $this->getRedirectHtml()));
+    }
+
+    /**
+     * Inject `target="_top"` into every `<form>` tag that doesn't already
+     * declare a target, so the bank's auto-submit form escapes any iframe.
+     */
+    protected function breakOutOfFrames(string $html): string
+    {
+        if ($html === '') {
+            return $html;
+        }
+
+        $patched = preg_replace(
+            '/<form\b(?![^>]*\btarget=)/i',
+            '<form target="_top"',
+            $html,
+        );
+
+        return is_string($patched) ? $patched : $html;
     }
 
     public function getMessage(): ?string

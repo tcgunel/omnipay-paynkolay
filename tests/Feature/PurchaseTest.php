@@ -165,4 +165,36 @@ class PurchaseTest extends TestCase
 
         $this->assertStringContainsString('3D Secure Redirect', $redirect->getContent());
     }
+
+    public function test_purchase_response_3d_redirect_breaks_out_of_iframe()
+    {
+        // The bank's auto-submit form must get target="_top" so its 3DS
+        // challenge page (X-Frame-Options: DENY) isn't loaded inside an iframe.
+        $response = new PurchaseResponse($this->getMockRequest(), [
+            'RESPONSE_CODE' => 2,
+            'USE_3D' => 'true',
+            'BANK_REQUEST_MESSAGE' => '<html><body><form action="https://bank.example/3ds" method="POST">'
+                . '<input type="hidden" name="pareq" value="x"></form>'
+                . '<script>document.forms[0].submit();</script></body></html>',
+        ]);
+
+        $content = $response->getRedirectResponse()->getContent();
+
+        $this->assertStringContainsString('<form target="_top" action="https://bank.example/3ds"', $content);
+    }
+
+    public function test_purchase_response_3d_redirect_preserves_existing_form_target()
+    {
+        $response = new PurchaseResponse($this->getMockRequest(), [
+            'RESPONSE_CODE' => 2,
+            'USE_3D' => 'true',
+            'BANK_REQUEST_MESSAGE' => '<form target="_self" action="https://bank.example/3ds"></form>',
+        ]);
+
+        $content = $response->getRedirectResponse()->getContent();
+
+        // A form that already declares a target must be left untouched.
+        $this->assertStringContainsString('<form target="_self"', $content);
+        $this->assertStringNotContainsString('target="_top"', $content);
+    }
 }
