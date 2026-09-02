@@ -13,10 +13,12 @@ use Omnipay\PayNKolay\Helpers\PayNKolayHelper;
  *   2. Call `verifyHash($merchantSecretKey)` — REJECT on false.
  *   3. Call `isSuccessful()` — only call `completePurchase()` when true.
  *
- * The wire format quirk to remember: the postback `hashData` field uses
- * SHA-1 + hex-decode + base64 over raw concatenation (no separator), NOT
- * the SHA-512 + pipe-separated scheme the outgoing requests use. See
- * `PayNKolayHelper::generatePostbackHash()`.
+ * The field to verify is `hashDataV2` — SHA-512 + base64 over the
+ * pipe-separated string documented at
+ * https://paynkolay.com.tr/entegrasyon/05-hash-response.php. The `hashData`
+ * field posted alongside it is a legacy SHA-1 value with no published
+ * specification; do not verify against it. See
+ * `PayNKolayHelper::verifyPostbackHash()`.
  */
 class Notification implements NotificationInterface
 {
@@ -77,7 +79,7 @@ class Notification implements NotificationInterface
     }
 
     /**
-     * Verify the inbound `hashData` against the merchant's secret key.
+     * Verify the inbound `hashDataV2` against the merchant's secret key.
      */
     public function verifyHash(string $merchantSecretKey): bool
     {

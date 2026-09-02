@@ -68,7 +68,7 @@ class NotificationTest extends TestCase
         self::assertEquals('Islem basarili', $notification->getMessage());
     }
 
-    public function test_verify_hash_accepts_correct_postback_hash()
+    public function test_verify_hash_accepts_documented_hash_data_v2()
     {
         $merchantSecretKey = 'placeholder-secret';
 
@@ -78,14 +78,83 @@ class NotificationTest extends TestCase
             'AUTH_CODE' => '123456',
             'RESPONSE_CODE' => '2',
             'USE_3D' => 'true',
-            'RND' => '01.01.2025 12:00:00',
+            'RND' => '1645700316156',
             'INSTALLMENT' => '1',
             'AUTHORIZATION_AMOUNT' => '100.00',
+            'CURRENCY_CODE' => 'TRY',
             'RESPONSE_DATA' => 'Islem basarili',
             'CLIENT_REFERENCE_CODE' => 'ORDER-7',
         ];
 
-        $postback['hashData'] = PayNKolayHelper::generatePostbackHash(
+        // Built exactly as the vendor's own PHP sample does, independently of
+        // the helper under test.
+        $postback['hashDataV2'] = base64_encode(hash('sha512', implode('|', [
+            '273',
+            'IKSIRPF450511',
+            '123456',
+            '2',
+            'true',
+            '1645700316156',
+            '1',
+            '100.00',
+            'TRY',
+            $merchantSecretKey,
+        ]), true));
+
+        $notification = new Notification($postback);
+
+        self::assertTrue($notification->verifyHash($merchantSecretKey));
+        self::assertFalse($notification->verifyHash('wrong-secret'));
+    }
+
+    public function test_verify_hash_accepts_postback_without_currency_code()
+    {
+        $merchantSecretKey = 'placeholder-secret';
+
+        // The 3D AutoComplete return does not carry CURRENCY_CODE.
+        $postback = [
+            'MERCHANT_NO' => '273',
+            'REFERENCE_CODE' => 'IKSIRPF450511',
+            'AUTH_CODE' => '123456',
+            'RESPONSE_CODE' => '2',
+            'USE_3D' => 'true',
+            'RND' => '1645700316156',
+            'INSTALLMENT' => '1',
+            'AUTHORIZATION_AMOUNT' => '100.00',
+        ];
+
+        $postback['hashDataV2'] = base64_encode(hash('sha512', implode('|', [
+            '273',
+            'IKSIRPF450511',
+            '123456',
+            '2',
+            'true',
+            '1645700316156',
+            '1',
+            '100.00',
+            $merchantSecretKey,
+        ]), true));
+
+        self::assertTrue((new Notification($postback))->verifyHash($merchantSecretKey));
+    }
+
+    public function test_verify_hash_rejects_tampered_amount()
+    {
+        $merchantSecretKey = 'placeholder-secret';
+
+        $postback = [
+            'MERCHANT_NO' => '273',
+            'REFERENCE_CODE' => 'IKSIRPF450511',
+            'AUTH_CODE' => '123456',
+            'RESPONSE_CODE' => '2',
+            'USE_3D' => 'true',
+            'RND' => '1645700316156',
+            'INSTALLMENT' => '1',
+            'AUTHORIZATION_AMOUNT' => '100.00',
+            'CURRENCY_CODE' => 'TRY',
+        ];
+
+        $postback['hashDataV2'] = PayNKolayHelper::generateResponseHashV2(
             $postback['MERCHANT_NO'],
             $postback['REFERENCE_CODE'],
             $postback['AUTH_CODE'],
@@ -94,13 +163,25 @@ class NotificationTest extends TestCase
             $postback['RND'],
             $postback['INSTALLMENT'],
             $postback['AUTHORIZATION_AMOUNT'],
+            $postback['CURRENCY_CODE'],
             $merchantSecretKey,
         );
 
-        $notification = new Notification($postback);
+        $postback['AUTHORIZATION_AMOUNT'] = '1.00';
 
-        self::assertTrue($notification->verifyHash($merchantSecretKey));
-        self::assertFalse($notification->verifyHash('wrong-secret'));
+        self::assertFalse((new Notification($postback))->verifyHash($merchantSecretKey));
+    }
+
+    public function test_verify_hash_rejects_legacy_hash_data_only_postback()
+    {
+        // hashData alone is not verifiable: Paynkolay publishes no spec for it.
+        $notification = new Notification([
+            'MERCHANT_NO' => '273',
+            'REFERENCE_CODE' => 'IKSIRPF450511',
+            'hashData' => 'NL5R04M8C4sjDNgBUnEZ/RCocEo=',
+        ]);
+
+        self::assertFalse($notification->verifyHash('placeholder-secret'));
     }
 
     public function test_verify_hash_rejects_missing_hash_data()
@@ -115,33 +196,9 @@ class NotificationTest extends TestCase
 
     public function test_verify_hash_rejects_empty_secret()
     {
-        $notification = new Notification(['hashData' => 'whatever']);
+        $notification = new Notification(['hashDataV2' => 'whatever']);
 
         self::assertFalse($notification->verifyHash(''));
-    }
-
-    public function test_generate_postback_hash_matches_woocommerce_reference_algorithm()
-    {
-        // Lock the wire format: concat (no separator) + sha1 + hex-decode + base64.
-        // Result is 28 characters (SHA-1 yields 20 raw bytes; base64-encoded = 28).
-        $hash = PayNKolayHelper::generatePostbackHash(
-            '273',
-            'IKSIRPF450511',
-            '123456',
-            '2',
-            'true',
-            '01.01.2025 12:00:00',
-            '1',
-            '100.00',
-            'placeholder-secret',
-        );
-
-        $expected = base64_encode(pack('H*', sha1(
-            '273IKSIRPF450511123456' . '2' . 'true' . '01.01.2025 12:00:00' . '1' . '100.00' . 'placeholder-secret'
-        )));
-
-        self::assertEquals($expected, $hash);
-        self::assertEquals(28, strlen($hash));
     }
 
     public function test_accept_notification_through_gateway()
