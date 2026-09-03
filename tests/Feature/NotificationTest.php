@@ -107,6 +107,80 @@ class NotificationTest extends TestCase
         self::assertFalse($notification->verifyHash('wrong-secret'));
     }
 
+    /**
+     * Regression: the result postback is JSON, so USE_3D arrives as a real
+     * boolean. PHP casts true to "1" while the gateway hashes "true", which
+     * made every signature check fail against production.
+     *
+     * Field values are transcribed from a real (failing) production postback;
+     * the secret is a stand-in, so the expected hash is computed here rather
+     * than hard-coded.
+     */
+    public function test_verify_hash_accepts_boolean_use_3d()
+    {
+        $merchantSecretKey = 'placeholder-secret';
+
+        $postback = [
+            'MERCHANT_NO' => '400025093',
+            'REFERENCE_CODE' => 'IKSIRPF327290363',
+            'AUTH_CODE' => '667127',
+            'RESPONSE_CODE' => '2',
+            'USE_3D' => true,
+            'RND' => '1788418388996',
+            'INSTALLMENT' => '1',
+            'AUTHORIZATION_AMOUNT' => '1.00',
+            'CURRENCY_CODE' => 'TRY',
+            'AUTO_COMPLETE' => true,
+        ];
+
+        $postback['hashDataV2'] = base64_encode(hash('sha512', implode('|', [
+            '400025093',
+            'IKSIRPF327290363',
+            '667127',
+            '2',
+            'true',
+            '1788418388996',
+            '1',
+            '1.00',
+            'TRY',
+            $merchantSecretKey,
+        ]), true));
+
+        self::assertTrue((new Notification($postback))->verifyHash($merchantSecretKey));
+    }
+
+    public function test_verify_hash_accepts_boolean_false_use_3d()
+    {
+        $merchantSecretKey = 'placeholder-secret';
+
+        $postback = [
+            'MERCHANT_NO' => '400025093',
+            'REFERENCE_CODE' => 'IKSIRPF327290363',
+            'AUTH_CODE' => '667127',
+            'RESPONSE_CODE' => '2',
+            'USE_3D' => false,
+            'RND' => '1788418388996',
+            'INSTALLMENT' => '1',
+            'AUTHORIZATION_AMOUNT' => '1.00',
+            'CURRENCY_CODE' => 'TRY',
+        ];
+
+        $postback['hashDataV2'] = base64_encode(hash('sha512', implode('|', [
+            '400025093',
+            'IKSIRPF327290363',
+            '667127',
+            '2',
+            'false',
+            '1788418388996',
+            '1',
+            '1.00',
+            'TRY',
+            $merchantSecretKey,
+        ]), true));
+
+        self::assertTrue((new Notification($postback))->verifyHash($merchantSecretKey));
+    }
+
     public function test_verify_hash_accepts_postback_without_currency_code()
     {
         $merchantSecretKey = 'placeholder-secret';

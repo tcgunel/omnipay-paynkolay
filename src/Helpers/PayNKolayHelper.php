@@ -156,13 +156,34 @@ class PayNKolayHelper
     }
 
     /**
+     * Normalise one postback field for hashing.
+     *
+     * Paynkolay sends the result postback as JSON, so `USE_3D` and
+     * `AUTO_COMPLETE` arrive as real booleans. PHP casts `true` to `"1"`,
+     * but the gateway hashes the literal `"true"` — casting naively puts the
+     * wrong byte in the string and every signature check fails.
+     */
+    private static function stringifyField(mixed $value): string
+    {
+        if (is_bool($value)) {
+            return $value ? 'true' : 'false';
+        }
+
+        if ($value === null) {
+            return '';
+        }
+
+        return (string) $value;
+    }
+
+    /**
      * Verify an inbound result postback against the merchant secret key.
      *
      * Only `hashDataV2` is authoritative. `CURRENCY_CODE` is part of the
-     * hashed string but is absent from some postbacks (notably the 3D
-     * AutoComplete return); when it is missing we accept either the empty
-     * segment or the segment being dropped altogether, since both candidates
-     * still require knowledge of the secret key.
+     * hashed string but is absent from some postbacks; when it is missing we
+     * accept either the empty segment or the segment being dropped
+     * altogether, since both candidates still require knowledge of the
+     * secret key.
      *
      * Returns false when `hashDataV2` is missing, the secret is empty, or no
      * candidate matches.
@@ -175,28 +196,33 @@ class PayNKolayHelper
             return false;
         }
 
-        $supplied = (string) ($postback['hashDataV2'] ?? '');
+        $supplied = self::stringifyField($postback['hashDataV2'] ?? '');
 
         if ($supplied === '') {
             return false;
         }
 
-        $fields = [
-            (string) ($postback['MERCHANT_NO'] ?? ''),
-            (string) ($postback['REFERENCE_CODE'] ?? ''),
-            (string) ($postback['AUTH_CODE'] ?? ''),
-            (string) ($postback['RESPONSE_CODE'] ?? ''),
-            (string) ($postback['USE_3D'] ?? ''),
-            (string) ($postback['RND'] ?? ''),
-            (string) ($postback['INSTALLMENT'] ?? ''),
-            (string) ($postback['AUTHORIZATION_AMOUNT'] ?? ''),
+        $fields = array_map(
+            static fn (string $key): string => self::stringifyField($postback[$key] ?? ''),
+            [
+                'MERCHANT_NO',
+                'REFERENCE_CODE',
+                'AUTH_CODE',
+                'RESPONSE_CODE',
+                'USE_3D',
+                'RND',
+                'INSTALLMENT',
+                'AUTHORIZATION_AMOUNT',
+            ]
+        );
+
+        $candidates = [
+            self::hash(implode('|', [
+                ...$fields,
+                self::stringifyField($postback['CURRENCY_CODE'] ?? ''),
+                $merchantSecretKey,
+            ])),
         ];
-
-        $candidates = [];
-
-        $currencyCode = (string) ($postback['CURRENCY_CODE'] ?? '');
-
-        $candidates[] = self::hash(implode('|', [...$fields, $currencyCode, $merchantSecretKey]));
 
         if (! isset($postback['CURRENCY_CODE'])) {
             $candidates[] = self::hash(implode('|', [...$fields, $merchantSecretKey]));
