@@ -83,6 +83,24 @@ class CompletePurchaseBindingTest extends TestCase
         self::assertSame(10000, $response->getSignedAmount());
     }
 
+    public function test_empty_client_reference_in_the_gateway_answer_falls_back_to_the_postback()
+    {
+        // Live CompletePayment answers often carry CLIENT_REFERENCE_CODE as an
+        // empty string; the signed postback then names the order.
+        $response = $this->complete([
+            'postback' => $this->genuinePostback(),
+            'transactionId' => 'ORDER-1',
+        ], [
+            'RESPONSE_CODE' => 2,
+            'AUTH_CODE' => '654321',
+            'REFERENCE_CODE' => 'PNK-REF-1',
+            'CLIENT_REFERENCE_CODE' => '',
+        ]);
+
+        self::assertTrue($response->isSuccessful());
+        self::assertSame('ORDER-1', $response->getClientReference());
+    }
+
     public function test_replayed_postback_against_another_order_is_not_successful()
     {
         $response = $this->complete([

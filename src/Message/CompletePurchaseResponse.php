@@ -76,9 +76,7 @@ class CompletePurchaseResponse extends AbstractResponse
      */
     public function getProviderReference(): ?string
     {
-        $value = $this->data['REFERENCE_CODE'] ?? $this->verifiedPostback()['REFERENCE_CODE'] ?? null;
-
-        return $value === null || $value === '' ? null : (string) $value;
+        return $this->firstFilled('REFERENCE_CODE');
     }
 
     /**
@@ -87,9 +85,25 @@ class CompletePurchaseResponse extends AbstractResponse
      */
     public function getClientReference(): ?string
     {
-        $value = $this->data['CLIENT_REFERENCE_CODE'] ?? $this->verifiedPostback()['CLIENT_REFERENCE_CODE'] ?? null;
+        return $this->firstFilled('CLIENT_REFERENCE_CODE');
+    }
 
-        return $value === null || $value === '' ? null : (string) $value;
+    /**
+     * The field from the gateway response, or from the verified postback when
+     * the response leaves it out or sends it empty (live CompletePayment
+     * responses often carry an empty CLIENT_REFERENCE_CODE).
+     */
+    private function firstFilled(string $key): ?string
+    {
+        foreach ([$this->data, $this->verifiedPostback() ?? []] as $source) {
+            $value = is_array($source) ? ($source[$key] ?? null) : null;
+
+            if (is_scalar($value) && (string) $value !== '') {
+                return (string) $value;
+            }
+        }
+
+        return null;
     }
 
     /**
