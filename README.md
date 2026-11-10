@@ -133,17 +133,44 @@ if (! $notification->isSuccessful()) {
     return failure_view($notification->getMessage());
 }
 
-// 3DS challenge succeeded and the postback is authentic — finalize:
+// 3DS challenge succeeded and the postback is authentic — finalize, and bind
+// the completion to the order you expect:
 $completion = $gateway->completePurchase([
     'referenceCode' => $notification->getTransactionReference(),
+    'postback' => $_POST,               // re-verified; signed REFERENCE_CODE + amount are bound
+    'transactionId' => $order->number,  // expected CLIENT_REFERENCE_CODE
+    'amount' => $order->total,          // expected amount, compared in integer minor units
 ])->send();
 
-if ($completion->isSuccessful()) {
-    // Charge captured.
-} else {
-    echo $completion->getMessage();
+if (! $completion->isSuccessful()) {
+    return failure_view($completion->getMessage());
 }
+
+// REQUIRED: confirm server-side that the provider reference really belongs
+// to this order. CLIENT_REFERENCE_CODE is not covered by the postback hash,
+// so a genuine postback for a cheap order could otherwise be replayed
+// against a more expensive one.
+$list = $gateway->paymentList([
+    'startDate' => date('d.m.Y'),
+    'endDate' => date('d.m.Y'),
+    'clientRefCode' => $order->number,
+])->send();
+
+if (! $list->confirmsPayment(
+    (string) $completion->getProviderReference(),
+    $order->number,
+    (int) $completion->getSignedAmount()
+)) {
+    return failure_view('Payment could not be confirmed');
+}
+
+// Store $completion->getProviderReference() on the order (and reject it if
+// it is already attached to another order) before marking it paid.
 ```
+
+When `postback`, `transactionId` or `amount` are passed, `CompletePurchaseResponse::isSuccessful()` additionally requires: a verifying `hashDataV2` (missing hash or empty secret key fails) whose `REFERENCE_CODE` equals `referenceCode`; a `CLIENT_REFERENCE_CODE` equal to `transactionId`; and an `AUTHORIZATION_AMOUNT` (signed postback first, gateway response otherwise) equal to `amount` exactly in minor units. Without them the behaviour is unchanged. Getters: `getProviderReference()`, `getClientReference()`, `getSignedAmount()` (integer minor units).
+
+`PaymentListResponse::confirmsPayment($providerReference, $clientReference, $amountInteger)` returns true only when the listing holds one transaction with all three values. Paynkolay does not publish a saved PaymentList response example, so the field names it checks (`REFERENCE_CODE`, `CLIENT_REFERENCE_CODE`, `AUTHORIZATION_AMOUNT`, plus casing fallbacks) come from the Postman request and this package's fixture. Check them against a real production response before relying on it.
 
 `Notification` exposes:
 

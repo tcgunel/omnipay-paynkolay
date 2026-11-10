@@ -5,6 +5,7 @@ namespace Omnipay\PayNKolay\Message;
 use JsonException;
 use Omnipay\Common\Message\AbstractResponse;
 use Omnipay\Common\Message\RequestInterface;
+use Omnipay\PayNKolay\Helpers\PayNKolayHelper;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -108,6 +109,54 @@ class PaymentListResponse extends AbstractResponse
                 if (isset($transaction[$key]) && (string) $transaction[$key] === $code) {
                     return $transaction;
                 }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Server-side confirmation for a completed 3D payment: true only when the
+     * listing holds a transaction whose REFERENCE_CODE equals the signed
+     * provider reference, whose CLIENT_REFERENCE_CODE equals your order
+     * reference, and whose AUTHORIZATION_AMOUNT equals the expected amount
+     * in integer minor units. Field-name fallbacks mirror
+     * findByClientReferenceCode().
+     */
+    public function confirmsPayment(string $providerReference, string $clientReference, int $amountInteger): bool
+    {
+        if (! $this->isSuccessful() || $providerReference === '' || $clientReference === '') {
+            return false;
+        }
+
+        foreach ($this->getTransactions() as $transaction) {
+            if (! is_array($transaction)) {
+                continue;
+            }
+
+            $ref = self::field($transaction, ['REFERENCE_CODE', 'referenceCode', 'REFERENCECODE']);
+            $client = self::field($transaction, ['CLIENT_REFERENCE_CODE', 'clientReferenceCode', 'CLIENTREFCODE', 'clientRefCode']);
+            $amount = self::field($transaction, ['AUTHORIZATION_AMOUNT', 'authorizationAmount', 'AMOUNT', 'amount']);
+
+            if ($ref === $providerReference
+                && $client === $clientReference
+                && PayNKolayHelper::amountToMinorUnits($amount) === $amountInteger) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param array<string, mixed> $transaction
+     * @param list<string> $keys
+     */
+    private static function field(array $transaction, array $keys): ?string
+    {
+        foreach ($keys as $key) {
+            if (isset($transaction[$key])) {
+                return (string) $transaction[$key];
             }
         }
 

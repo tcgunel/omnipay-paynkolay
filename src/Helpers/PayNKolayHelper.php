@@ -238,6 +238,30 @@ class PayNKolayHelper
     }
 
     /**
+     * Parse a gateway amount ("100.00", "100,5", 100) into integer minor
+     * units (2 decimals). Returns null for anything that is not a plain
+     * non-negative decimal with at most two fraction digits — no float math.
+     */
+    public static function amountToMinorUnits(mixed $value): ?int
+    {
+        if (is_int($value)) {
+            return $value >= 0 ? $value * 100 : null;
+        }
+
+        if (! is_string($value) && ! is_float($value)) {
+            return null;
+        }
+
+        $string = is_float($value) ? number_format($value, 2, '.', '') : trim(str_replace(',', '.', $value));
+
+        if (! preg_match('/^(\d+)(?:\.(\d{1,2}))?$/', $string, $m)) {
+            return null;
+        }
+
+        return (int) $m[1] * 100 + (int) str_pad($m[2] ?? '', 2, '0');
+    }
+
+    /**
      * Format amount with two decimals and dot separator (e.g. 100.5 -> "100.50").
      */
     public static function formatAmount(float $amount): string
